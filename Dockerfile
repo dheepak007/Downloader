@@ -8,6 +8,9 @@ COPY package*.json ./
 COPY utils ./utils
 COPY server.js ./
 
+# Disable ytdl-core update checks (avoid network errors on startup)
+ENV YTDL_NO_UPDATE=1
+
 # Copy frontend static files (built assets)
 COPY public ./public
 
