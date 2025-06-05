@@ -23,11 +23,15 @@ async function downloadPinterest(url) {
       Array.isArray(response.data.data) &&
       response.data.data.length > 0
     ) {
+      const videos = response.data.data.map((f) => ({
+        quality: 'default',
+        url: f.url,
+      }));
       const file = response.data.data[0];
       return {
         title: 'Pinterest Media',
         thumbnail: file.thumbnail || '',
-        downloadUrl: file.url,
+        videos,
       };
     }
     return null;
