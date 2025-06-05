@@ -28,7 +28,9 @@ app.post('/api/download', async (req, res) => {
     if (!result) res.status(404).json({ error: 'Download failed or not found' });
     else res.json({ success: true, ...result });
   } catch (err) {
-    res.status(500).json({ error: 'Internal error', details: err.message });
+    console.error('Download error:', err);
+    const details = err && err.message ? err.message : String(err);
+    res.status(500).json({ error: 'Internal error', details });
   }
 });
 
