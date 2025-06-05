@@ -3,12 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lite downloader for YouTube, Instagram, Pinterest videos - fast, free, no ads!" />
+    <meta name="description" content="Lite downloader for YouTube, Instagram, Pinterest videos" />
     <title>Lite Downloader</title>
-    <script type="module" crossorigin src="/assets/index-BCpc3y1u.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-B6h4GD3s.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+      .app-container{max-width:500px;margin:0 auto;padding:16px}
+      .download-result img{max-width:100%}
+      .quality-list{list-style:none;padding:0}
+      .quality-list li{margin:4px 0}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="app-container">
+      <h1>Lite Downloader</h1>
+      <form id="download-form" class="download-form">
+        <input type="url" id="url" placeholder="Enter video URL" required />
+        <select id="service">
+          <option value="youtube">YouTube</option>
+          <option value="instagram">Instagram</option>
+          <option value="pinterest">Pinterest</option>
+        </select>
+        <button type="submit">Fetch</button>
+      </form>
+      <div id="result" class="download-result"></div>
+    </div>
+    <script>
+      const form = document.getElementById('download-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = document.getElementById('url').value.trim();
+        const service = document.getElementById('service').value;
+        const resElem = document.getElementById('result');
+        resElem.textContent = 'Loading...';
+        try {
+          const resp = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, service })
+          });
+          const data = await resp.json();
+          if (!resp.ok) throw new Error(data.error || 'Failed');
+
+          resElem.innerHTML = '<h2>' + data.title + '</h2>';
+          if (data.thumbnail) {
+            resElem.innerHTML += '<img src="' + data.thumbnail + '" alt="thumbnail">';
+          }
+          const list = document.createElement('ul');
+          list.className = 'quality-list';
+          data.videos.forEach(v => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = v.url;
+            a.textContent = v.quality;
+            a.download = '';
+            li.appendChild(a);
+            list.appendChild(li);
+          });
+          resElem.appendChild(list);
+        } catch (err) {
+          resElem.textContent = err.message;
+        }
+      });
+    </script>
   </body>
 </html>
