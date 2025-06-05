@@ -5,8 +5,15 @@ const ytdl = require('ytdl-core');
 async function downloadYouTube(url) {
   if (!ytdl.validateURL(url)) return null;
 
+  const forceIPv4 = process.env.FORCE_IPV4 === '1' || process.env.FORCE_IPV4 === 'true';
+  const info = forceIPv4
+    ? await ytdl.getInfo(url, { requestOptions: { family: 4 } })
+    : await ytdl.getInfo(url);
+
+
   // Force IPv4 requests to avoid IPv6 connection issues on some hosts
   const info = await ytdl.getInfo(url, { requestOptions: { family: 4 } });
+
   const format = ytdl.chooseFormat(info.formats, { quality: 'highest' });
 
   const info = await ytdl.getInfo(url);
